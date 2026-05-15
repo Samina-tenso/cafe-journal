@@ -1,0 +1,22 @@
+# version: '3.9'
+# services:
+#   postgres:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_USER: cafeapp
+#       POSTGRES_PASSWORD: secret
+#       POSTGRES_DB: cafeappdb
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - pgdata:/var/lib/postgresql/data
+#     healthcheck:
+#       test: [ "CMD-SHELL", "pg_isready -U cafeapp" ]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+# volumes:
+#   pgdata: {}
+
+
