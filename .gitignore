@@ -40,19 +40,23 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-backend/.venv
-backend.venv
-.venv
-venv/
-env/
+# Frontend artifacts
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
 
-# Python caches
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.pytest_cache/
-.mypy_cache/
+# Backend
+backend/.venv/
+
+# Lockfiles - keep if you prefer reproducible installs
+# package-lock.json
+
+# OS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
 
 # Local env & secrets
 .env
