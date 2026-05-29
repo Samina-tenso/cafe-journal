@@ -1,4 +1,5 @@
 import './globals.css'
+import { QueryProvider } from '../providers/QueryProvider'
 
 export const metadata = {
   title: 'Cafe Journal',
@@ -9,7 +10,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   )
