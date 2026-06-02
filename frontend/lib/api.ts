@@ -1,3 +1,13 @@
+// API client. Talks to the FastAPI backend by default; set
+// NEXT_PUBLIC_USE_MOCK_API=true to run fully offline against lib/api.mock.ts.
+//
+// Path note: the backend mounts list/create at "/cafes/" and item routes at
+// "/cafes/{id}". We match those exactly. Calling "/cafes" (no trailing slash)
+// triggers a 307 redirect from FastAPI, doubling every request — so don't.
+
+import type { Cafe, CafeCreate, CafeUpdate } from "../types/cafe";
+import { mockApi } from "./api.mock";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
@@ -12,16 +22,16 @@ async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
   return (await res.json()) as T;
 }
 
-export const api = {
-  listCafes: () => request<import("../types/cafe").Cafe[]>("/cafes"),
-  getCafe: (id: string) => request<import("../types/cafe").Cafe>(`/cafes/${id}`),
-  createCafe: (payload: import("../types/cafe").CafeCreate) =>
-    request<import("../types/cafe").Cafe>("/cafes", {
+const realApi = {
+  listCafes: () => request<Cafe[]>("/cafes/"),
+  getCafe: (id: string) => request<Cafe>(`/cafes/${id}`),
+  createCafe: (payload: CafeCreate) =>
+    request<Cafe>("/cafes/", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
-  updateCafe: (id: string, payload: import("../types/cafe").CafeUpdate) =>
-    request<import("../types/cafe").Cafe>(`/cafes/${id}`, {
+  updateCafe: (id: string, payload: CafeUpdate) =>
+    request<Cafe>(`/cafes/${id}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
     }),
@@ -30,3 +40,7 @@ export const api = {
       method: "DELETE",
     }),
 };
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
+
+export const api = USE_MOCK ? mockApi : realApi;

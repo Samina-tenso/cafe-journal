@@ -15,12 +15,16 @@ if _allowed:
 else:
     allow_origins = ["*"] if os.getenv("DEV", "true").lower() == "true" else []
 
+# Browsers reject `Access-Control-Allow-Origin: *` together with credentials, so
+# only enable credentials when origins are explicitly listed.
+allow_credentials = "*" not in allow_origins
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
 )
 
 app.include_router(cafes_router)
