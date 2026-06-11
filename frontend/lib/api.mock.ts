@@ -4,7 +4,7 @@
 // the real fetch-based client. Same surface as the real client so hooks and
 // components don't change.
 
-import type { Cafe, CafeCreate, CafeUpdate } from "../types/cafe";
+import type { Cafe, CafeCreate, CafeUpdate, MockPlaceResult } from "../types/cafe";
 
 const now = () => new Date().toISOString();
 
@@ -44,6 +44,77 @@ const cafes: Cafe[] = [
   },
 ];
 
+const locations = [
+  {
+    id: uuid(),
+    address: "Huddingevägen 14245",
+    city: "Älvsjö",
+    country: "Sweden",
+    latitude: 59.2753,
+    longitude: 17.9914
+  }, 
+  {
+    id: uuid(),
+    address: "Wollmar Yxkullsgatan 10",
+    city: "Stockholm",
+    country: "Sweden",
+    latitude: 59.3177,
+    longitude: 18.0604
+  },
+  {
+    id: uuid(),
+    address: "Krukmakargatan 24",
+    city: "Stockholm",
+    country: "Sweden",
+    latitude: 59.3162,
+    longitude: 18.0544
+  },
+  {
+    id: uuid(),
+    address: "Swedenborgsgatan 7",
+    city: "Stockholm",
+    country: "Sweden",
+    latitude: 59.3171,
+    longitude: 18.0654
+  },
+
+];
+
+const places: MockPlaceResult[] = [
+  {
+    name: "Älvdalens Café",
+    address: "Huddingevägen 14245",
+    city: "Älvsjö",
+    country: "Sweden",
+    latitude: 59.2753,
+    longitude: 17.9914
+  },
+  {
+    name: "Drop Coffee",
+    address: "Wollmar Yxkullsgatan 10",
+    city: "Stockholm",
+    country: "Sweden",
+    latitude: 59.3177,
+      longitude: 18.0604
+  },
+  {
+    name: "Cafe Ritual",
+    address: "Krukmakargatan 24",
+    city: "Stockholm",
+    country: "Sweden",
+    latitude: 59.3162,
+    longitude: 18.0544
+  },
+  {
+    name: "Johan & Nyström",
+    address: "Swedenborgsgatan 7",
+    city: "Stockholm",
+    country: "Sweden",
+    latitude: 59.3171,
+    longitude: 18.0654
+  },
+];
+
 // Simulate network latency so loading states are exercised.
 const LATENCY_MS = 200;
 const delay = <T>(value: T): Promise<T> =>
@@ -55,6 +126,8 @@ const clone = <T>(value: T): T =>
     : JSON.parse(JSON.stringify(value));
 
 export const mockApi = {
+
+
   listCafes: () => delay(clone(cafes)),
 
   getCafe: (id: string) => {
@@ -65,14 +138,18 @@ export const mockApi = {
     return delay(clone(cafe));
   },
 
-  createCafe: (payload: CafeCreate) => {
+  createCafe: (payload: CafeCreate, place: MockPlaceResult) => {
     const cafe: Cafe = {
       id: uuid(),
       name: payload.name,
-      location_id: payload.location_id ?? null,
       created_at: now(),
       updated_at: now(),
+      vibes: payload.vibes ?? []
     };
+    const {name, ...locationData} = place 
+    const newLocation = {id:uuid(), ...locationData};
+    locations.push(newLocation);
+    cafe.location_id = newLocation.id;
     cafes.push(cafe);
     return delay(clone(cafe));
   },
@@ -83,7 +160,6 @@ export const mockApi = {
       return Promise.reject(new Error(`404 Not Found: cafe ${id}`));
     }
     if (payload.name !== undefined) cafe.name = payload.name;
-    if (payload.location_id !== undefined) cafe.location_id = payload.location_id;
     cafe.updated_at = now();
     return delay(clone(cafe));
   },
@@ -96,4 +172,10 @@ export const mockApi = {
     cafes.splice(idx, 1);
     return delay({ detail: "deleted" });
   },
+
+  searchPlaces: (query: string): Promise<MockPlaceResult[]> => {
+    const lower = query.toLowerCase();
+    const results = places.filter((p) => p.name.toLowerCase().includes(lower));
+    return delay(clone(results));
+  }
 };

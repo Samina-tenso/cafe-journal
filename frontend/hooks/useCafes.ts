@@ -1,7 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import type { Cafe, CafeCreate, CafeUpdate } from "../types/cafe";
+import type { Cafe, CafeCreate, CafeUpdate, MockPlaceResult } from "../types/cafe";
 
 export function useCafes() {
   return useQuery<Cafe[], Error>({ queryKey: ["cafes"], queryFn: api.listCafes });
@@ -17,8 +17,8 @@ export function useCafe(id?: string) {
 
 export function useCreateCafe() {
   const qc = useQueryClient();
-  return useMutation<Cafe, Error, CafeCreate>({
-    mutationFn: api.createCafe,
+  return useMutation<Cafe, Error, { place:MockPlaceResult; vibes: string[] } & CafeCreate>({
+    mutationFn:({place, vibes}) => api.createCafe({name: place.name, vibes}, place),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["cafes"] }),
   });
 }
@@ -36,5 +36,13 @@ export function useDeleteCafe() {
   return useMutation<{ detail: string }, Error, string>({
     mutationFn: api.deleteCafe,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["cafes"] }),
+  });
+}
+
+export function useSearchPlaces(query:string) {
+  return useQuery({
+    queryKey:["places", query],
+    queryFn: () => api.searchPlaces(query),
+    enabled: query.trim().length > 0
   });
 }

@@ -11,6 +11,7 @@ export default function CafeList() {
 
   return (
     <ul>
+    
       {cafes.map((cafe) => (
         <li key={cafe.id}>{cafe.name}</li>
       ))}

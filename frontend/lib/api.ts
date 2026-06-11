@@ -5,7 +5,7 @@
 // "/cafes/{id}". We match those exactly. Calling "/cafes" (no trailing slash)
 // triggers a 307 redirect from FastAPI, doubling every request — so don't.
 
-import type { Cafe, CafeCreate, CafeUpdate } from "../types/cafe";
+import type { Cafe, CafeCreate, CafeUpdate,MockPlaceResult } from "../types/cafe";
 import { mockApi } from "./api.mock";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -23,10 +23,10 @@ async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
 }
 
 const realApi = {
-  listCafes: () => request<Cafe[]>("/cafes/"),
+  listCafes: () => request<Cafe[]>("/cafes"),
   getCafe: (id: string) => request<Cafe>(`/cafes/${id}`),
-  createCafe: (payload: CafeCreate) =>
-    request<Cafe>("/cafes/", {
+  createCafe: (payload: CafeCreate, _place?: MockPlaceResult) =>
+    request<Cafe>("/cafes", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
@@ -39,6 +39,8 @@ const realApi = {
     request<{ detail: string }>(`/cafes/${id}`, {
       method: "DELETE",
     }),
+  searchPlaces: (_query: string): Promise<MockPlaceResult[]> =>
+    Promise.reject(new Error("Not implemented: searchPlaces")),
 };
 
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
